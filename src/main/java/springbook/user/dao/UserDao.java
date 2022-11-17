@@ -2,10 +2,7 @@ package springbook.user.dao;
 
 import springbook.user.domain.User;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class UserDao {
     public void add(User user) throws ClassNotFoundException, SQLException{
@@ -20,5 +17,34 @@ public class UserDao {
         ps.setString(1, user.getId());
         ps.setString(2, user.getName());
         ps.setString(3, user.getPassword());
+
+        ps.executeUpdate();
+        ps.close();
+        conn.close();
     }
+
+    public User get(String id) throws ClassNotFoundException, SQLException{
+        Class.forName("com.mysql.jdbc.Driver");
+        Connection conn = DriverManager.getConnection(
+                "jdbc:mysql://locallhost/springbook", "spring", "book"
+        );
+        PreparedStatement ps = conn.prepareStatement(
+                "select * from users where id =?"
+        );
+        ps.setString(1, id);
+
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        User user = new User();
+        user.setId(rs.getString("id"));
+        user.setName(rs.getString("name"));
+        user.setPassword(rs.getString("password"));
+
+        rs.close();
+        ps.close();
+        conn.close();
+
+        return user;
+    }
+
 }
